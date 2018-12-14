@@ -10,24 +10,23 @@ init(Client, Validator, Store) ->
 handler(Client, Validator, Store, Reads, Writes) ->         
     receive
         {read, Ref, N} ->
-            case lists:keyfind(..., ..., ...) of  %% TODO: COMPLETE
+            case lists:keyfind(Ref, N, Store) of
                 {N, _, Value} ->
-                    %% TODO: ADD SOME CODE
+                    Client ! {value, Ref, Value},
                     handler(Client, Validator, Store, Reads, Writes);
                 false ->
-                    %% TODO: ADD SOME CODE
-                    %% TODO: ADD SOME CODE
+                    store:lookup(N, Store) ! {read, Ref, self()},
                     handler(Client, Validator, Store, Reads, Writes)
             end;
         {Ref, Entry, Value, Time} ->
-            %% TODO: ADD SOME CODE HERE AND COMPLETE NEXT LINE
-            handler(Client, Validator, Store, [...|Reads], Writes);
+            Client ! {value, Ref, Value},
+            handler(Client, Validator, Store, [{Entry, Time}|Reads], Writes);
         {write, N, Value} ->
-            %% TODO: ADD SOME CODE HERE AND COMPLETE NEXT LINE
-            Added = lists:keystore(N, 1, ..., {N, ..., ...}),
+            Added = lists:keystore(N, 1, Writes, {N, store:lookup(N, Store), Value}),
             handler(Client, Validator, Store, Reads, Added);
         {commit, Ref} ->
-            %% TODO: ADD SOME CODE
+            Validator ! {validate, Ref, Reads, Writes, Client},
+            handler(Client, Validator, Store, Reads, Writes);
         abort ->
             ok
     end.

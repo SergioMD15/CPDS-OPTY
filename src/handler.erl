@@ -10,7 +10,7 @@ init(Client, Validator, Store) ->
 handler(Client, Validator, Store, Reads, Writes) ->         
     receive
         {read, Ref, N} ->
-            case lists:keyfind(Ref, N, Store) of
+            case lists:keyfind(N, 1, Writes) of
                 {N, _, Value} ->
                     Client ! {value, Ref, Value},
                     handler(Client, Validator, Store, Reads, Writes);

@@ -25,8 +25,7 @@ handler(Client, Validator, Store, Reads, Writes) ->
             Added = lists:keystore(N, 1, Writes, {N, store:lookup(N, Store), Value}),
             handler(Client, Validator, Store, Reads, Added);
         {commit, Ref} ->
-            Validator ! {validate, Ref, Reads, Writes, Client},
-            handler(Client, Validator, Store, Reads, Writes);
+            Validator ! {validate, Ref, Reads, Writes, Client};
         abort ->
             ok
     end.
